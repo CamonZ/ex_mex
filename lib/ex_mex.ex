@@ -45,7 +45,7 @@ defmodule ExMex do
     GenServer.call(pid, {:post_order, order})
   end
 
-  def post_orders(pid, orders) do
+  def post_orders(pid, orders) when length(orders) > 1 do
     GenServer.call(pid, {:post_orders, orders})
   end
 
@@ -55,6 +55,15 @@ defmodule ExMex do
 
   def cancel_all_orders(pid) do
     GenServer.call(pid, :cancel_all_orders)
+  end
+
+  def process_from_cli(pid, %{side: side, amount: quantity, price: price} = cli_options) do
+    orders = [Order.build(side_from_string(side), price, quantity, :limit, "XBTUSD")]
+
+    case Map.has_key?(cli_options, :stop) and not is_nil(cli_options[:stop]) do
+      true -> ExMex.post_orders(pid, [Order.stop_for(hd(orders), cli_options[:stop]) | orders] |> Enum.reverse())
+      false -> ExMex.post_order(pid, orders)
+    end
   end
 
   # Callbacks
@@ -93,5 +102,14 @@ defmodule ExMex do
   def handle_call(:cancel_all_orders, _, state) do
     order = ExMex.OrdersAPI.cancel_all_orders(state)
     {:reply, order, state}
+  end
+
+  # Helpers
+
+  defp side_from_string(side) do
+    case side do
+      "long" -> :buy
+      "short" -> :sell
+    end
   end
 end

@@ -32,7 +32,7 @@ defmodule ExMex.Order do
   defp process_price(%{ordType: type} = order, price) when type == "Limit",
     do: order |> Map.merge(%{price: price})
 
-  defp process_price(order, price),
+  defp process_price(order, _), # When not specified, it's a Market order, we only need the amount
     do: order
 
   defp camelize(atom) when is_atom(atom),

@@ -4,17 +4,20 @@ defmodule ExMex.CLI do
   @command_line_aliases [s: :side, a: :amount, p: :price, t: :stop]
 
   def main(argv) do
-    commands = parse_args(argv)
-    config = Map.put(load_api_keys(), :testnet, commands[:testnet])
+    command = parse_args(argv)
+    config = Map.put(load_api_keys(), :testnet, command[:testnet])
 
     {:ok, client} = ExMex.start_link(config)
 
-    orders = ExMex.process_from_cli(client, commands)
+    result = ExMex.process_command_from_cli(client, command)
 
-    IO.puts "Submitted the following orders:"
+    IO.puts "\nSubmitted the following orders:\n"
 
-    print_orders(orders)
-
+    case result do
+      {:ok, orders} -> print_orders(orders)
+      {:error, :unspecified_error} -> IO.puts "Unspecified error"
+      {:error, reason} -> print_errors(reason)
+    end
   rescue
     _ in OptionParser.ParseError -> usage()
   end
@@ -25,6 +28,10 @@ defmodule ExMex.CLI do
   end
 
   defp print_orders([]) do
+  end
+
+  defp print_errors(reason) do
+    IO.puts "Submitting orders failed because of reason: #{inspect reason}"
   end
 
   defp parse_args(argv) do

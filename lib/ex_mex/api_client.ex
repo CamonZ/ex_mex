@@ -5,23 +5,28 @@ defmodule ExMex.ApiClient do
 
 
   def do_request(%{verb: verb, query: query}= request, config) when verb == "GET"  do
-    get(client(request, config), request[:path], query: query).body
+    get(client(request, config), request[:path], query: query)
+    |> wrap_response()
   end
 
   def do_request(%{verb: verb}= request, config) when verb == "GET" do
-    get(client(request, config), request[:path]).body
+    get(client(request, config), request[:path])
+    |> wrap_response()
   end
 
   def do_request(%{verb: verb, data: data}= request, config) when verb == "POST" do
-    post(client(request, config), request[:path], data).body
+    post(client(request, config), request[:path], data)
+    |> wrap_response()
   end
 
   def do_request(%{verb: verb, data: data}= request, config) when verb == "PUT" do
-    put(client(request, config), request[:path], data).body
+    put(client(request, config), request[:path], data)
+    |> wrap_response()
   end
 
   def do_request(%{verb: verb, data: data}= request, config) when verb == "DELETE" do
-    delete(client(request, config), request[:path], body: data).body
+    delete(client(request, config), request[:path], body: data)
+    |> wrap_response()
   end
 
   def client(request, config) do
@@ -60,5 +65,13 @@ defmodule ExMex.ApiClient do
   defp signature(%{verb: verb, path: path}, nonce, config) do
     :crypto.hmac(:sha256, config.api_secret, "#{verb}#{path}#{nonce}")
     |> Base.encode16
+  end
+
+  defp wrap_response(response) do
+    case response.status do
+      status when status in (200..299)  -> {:ok, response.body}
+      status when status > 400 -> {:error, response.body}
+      _ -> {:error, :unspecified_error}
+    end
   end
 end

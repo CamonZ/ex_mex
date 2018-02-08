@@ -57,7 +57,7 @@ defmodule ExMex do
     GenServer.call(pid, :cancel_all_orders)
   end
 
-  def process_from_cli(pid, %{side: side, amount: quantity, price: price} = cli_options) do
+  def process_command_from_cli(pid, %{side: side, amount: quantity, price: price} = cli_options) do
     orders = [Order.build(side_from_string(side), price, quantity, :limit, "XBTUSD")]
 
     case Map.has_key?(cli_options, :stop) and not is_nil(cli_options[:stop]) do
@@ -80,28 +80,28 @@ defmodule ExMex do
   end
 
   def handle_call({:get_orders, only_open}, _, state) do
-    orders = ExMex.OrdersAPI.get_orders(only_open, state)
-    {:reply, orders, state}
+    result = ExMex.OrdersAPI.get_orders(only_open, state)
+    {:reply, result, state}
   end
 
   def handle_call({:post_order, order}, _, state) do
-    order = ExMex.OrdersAPI.post_order(order, state)
-    {:reply, order, state}
+    result = ExMex.OrdersAPI.post_order(order, state)
+    {:reply, result, state}
   end
 
   def handle_call({:post_orders, orders}, _, state) do
-    orders = ExMex.OrdersAPI.post_orders(orders, state)
-    {:reply, orders, state}
+    result = ExMex.OrdersAPI.post_orders(orders, state)
+    {:reply, result, state}
   end
 
   def handle_call({:cancel_order, order_id}, _, state) do
-    order = ExMex.OrdersAPI.cancel_order(order_id, state)
-    {:reply, order, state}
+    result = ExMex.OrdersAPI.cancel_order(order_id, state)
+    {:reply, result, state}
   end
 
   def handle_call(:cancel_all_orders, _, state) do
-    order = ExMex.OrdersAPI.cancel_all_orders(state)
-    {:reply, order, state}
+    result = ExMex.OrdersAPI.cancel_all_orders(state)
+    {:reply, result, state}
   end
 
   # Helpers

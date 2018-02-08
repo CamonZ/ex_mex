@@ -21,7 +21,6 @@ defmodule ExMex.MixProject do
   defp deps do
     [
       {:poison, "~> 3.1"},
-      {:timex, "~> 3.1"},
       {:tesla, "~> 0.7.1"},
       {:hackney, "~> 1.9.0"},
       {:yaml_elixir, "~> 1.1"}

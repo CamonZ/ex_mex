@@ -42,9 +42,8 @@ defmodule ExMex.ApiClient do
   end
 
   defp nonce_timestamp do
-    DateTime.utc_now
-    |> Timex.shift(minutes: 1)
-    |> DateTime.to_unix(:microseconds)
+    ts = DateTime.utc_now |> DateTime.to_unix(:microseconds)
+    ts + 10_000_000 # Adding 10 secs of validity for the order to be processed
   end
 
   defp signature(%{verb: verb, path: path, query: query}, nonce, config) do

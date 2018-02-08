@@ -71,7 +71,7 @@ defmodule ExMex do
   def init(opts) do
     api_url = case opts[:testnet] do
                 true -> "https://testnet.bitmex.com"
-                false -> "https://www.bitmex.com"
+                _ -> "https://www.bitmex.com"
               end
 
     state = %ExMex{api_key: opts[:api_key], api_secret: opts[:api_secret], api_url: api_url, testnet: opts[:testnet]}

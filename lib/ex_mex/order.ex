@@ -38,6 +38,6 @@ defmodule ExMex.Order do
   defp camelize(atom) when is_atom(atom),
     do: Atom.to_string(atom) |> String.split("_") |> Enum.map(&String.capitalize/1) |> Enum.join("")
 
-  defp stop_price(side, price, percentage) when side == "Buy", do: price * ((100 - percentage) / 100)
-  defp stop_price(side, price, percentage) when side == "Sell", do: price * ((100 + percentage) / 100)
+  defp stop_price(side, price, percentage) when side == "Buy", do: price * ((100 - percentage) / 100) |> Float.floor()
+  defp stop_price(side, price, percentage) when side == "Sell", do: price * ((100 + percentage) / 100) |> Float.ceil()
 end

@@ -1,7 +1,7 @@
 defmodule ExMex.CLI do
 
   @command_line_flags [side: :string, amount: :integer, price: :float, stop: :float, testnet: :boolean]
-  @command_line_aliases [s: :side, a: :amount, p: :price, sp: :stop]
+  @command_line_aliases [s: :side, a: :amount, p: :price, t: :stop]
 
   def main(argv) do
     commands = parse_args(argv)
@@ -11,8 +11,20 @@ defmodule ExMex.CLI do
 
     orders = ExMex.process_from_cli(client, commands)
 
+    IO.puts "Submitted the following orders:"
+
+    print_orders(orders)
+
   rescue
     _ in OptionParser.ParseError -> usage()
+  end
+
+  defp print_orders([%{"side" => side, "price" => price, "orderQty" => amount, "orderID" => id}|rest]) do
+    IO.puts "#{side}ing #{amount} contracts @ $#{price} with order id: #{id}"
+    print_orders(rest)
+  end
+
+  defp print_orders([]) do
   end
 
   defp parse_args(argv) do
@@ -25,7 +37,10 @@ defmodule ExMex.CLI do
   end
 
   defp load_api_keys do
-    YamlElixir.read_all_from_file(config_filename_path()) |> atomize_keys()
+    config_filename_path()
+    |> YamlElixir.read_all_from_file()
+    |> hd()
+    |> atomize_keys()
   end
 
   defp config_filename_path do
@@ -33,18 +48,18 @@ defmodule ExMex.CLI do
   end
 
   defp atomize_keys(map) do
-    map |> Enum.map(fn({k, v}) -> {String.to_existing_atom(k), v} end) |> Enum.into(%{})
+    map |> Enum.map(fn({k, v}) -> {String.to_atom(k), v} end) |> Enum.into(%{})
   end
 
   defp usage do
     IO.puts "Usage:\n"
-    IO.puts "./ex_mex -s <long|short> -a <amount> -p <price> [-sp <stop_percentage>] [--testnet]"
+    IO.puts "./ex_mex -s <long|short> -a <amount> -p <price> [-t <stop_percentage>] [--testnet]"
     IO.puts "\nRequired Values:\n"
     IO.puts "side -s must be either 'long' or 'short'"
     IO.puts "amount -a must be a positive integer"
     IO.puts "price -p must be a positive value in $0.5 increments"
     IO.puts "\nOptional Values:\n"
-    IO.puts "stop_percentage -sp must be a positive value greater than 0 and smaller than 100. e.g. 2 which translates to 2%"
+    IO.puts "stop_percentage -t must be a positive value greater than 0 and smaller than 100. e.g. 2 which translates to 2%"
     IO.puts "--testnet uses BitMEX's testnet, test things here first"
 
     exit(:normal)

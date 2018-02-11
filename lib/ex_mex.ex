@@ -17,30 +17,6 @@ defmodule ExMex do
     GenServer.call(pid, {:get_orders, only_open})
   end
 
-  def long(pid, price, amount, symbol \\ "XBTUSD") do
-    order = Order.build(:buy, price, amount, :limit, symbol)
-    ExMex.post_order(pid, order)
-  end
-
-  def short(pid, price, amount, symbol \\ "XBTUSD") do
-    order = Order.build(:sell, price, amount, :limit, symbol)
-    ExMex.post_order(pid, order)
-  end
-
-  def long_with_stop(pid, price, amount, percentage, symbol \\ "XBTUSD") do
-    long = Order.build(:buy, price, amount, :limit, symbol)
-    stop = Order.stop_for(long, percentage)
-
-    ExMex.post_orders(pid, [long, stop])
-  end
-
-  def short_with_stop(pid, price, amount, percentage, symbol \\ "XBTUSD") do
-    short = Order.build(:sell, price, amount, :limit, symbol)
-    stop = Order.stop_for(short, percentage)
-
-    ExMex.post_orders(pid, [short, stop])
-  end
-
   def post_order(pid, order) do
     GenServer.call(pid, {:post_order, order})
   end

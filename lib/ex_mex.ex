@@ -38,7 +38,7 @@ defmodule ExMex do
 
     case Map.has_key?(cli_options, :stop) and not is_nil(cli_options[:stop]) do
       true -> ExMex.post_orders(pid, [Order.stop_for(hd(orders), cli_options[:stop]) | orders] |> Enum.reverse())
-      false -> ExMex.post_order(pid, orders)
+      false -> ExMex.post_orders(pid, orders)
     end
   end
 

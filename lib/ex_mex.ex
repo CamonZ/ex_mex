@@ -21,7 +21,7 @@ defmodule ExMex do
     GenServer.call(pid, {:post_order, order})
   end
 
-  def post_orders(pid, orders) when length(orders) > 1 do
+  def post_orders(pid, orders) when is_list(orders) and length(orders) >= 1 do
     GenServer.call(pid, {:post_orders, orders})
   end
 
@@ -33,7 +33,7 @@ defmodule ExMex do
     GenServer.call(pid, :cancel_all_orders)
   end
 
-  def process_command_from_cli(pid, %{side: side, amount: quantity, price: price} = cli_options) do
+  def process_command_from_cli(pid, %{side: side, quantity: quantity, price: price} = cli_options) do
     orders = [Order.build(side_from_string(side), price, quantity, :limit, "XBTUSD")]
 
     case Map.has_key?(cli_options, :stop) and not is_nil(cli_options[:stop]) do

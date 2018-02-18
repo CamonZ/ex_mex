@@ -22,6 +22,7 @@ defmodule ExMex.MixProject do
     [
       {:poison, "~> 3.1"},
       {:tesla, "~> 0.10.0"},
+      {:exvcr, "~> 0.8", only: :test},
       {:yaml_elixir, "~> 1.1"}
     ]
   end
